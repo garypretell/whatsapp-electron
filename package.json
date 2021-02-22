@@ -33,18 +33,20 @@
     "electron:serve-tsc": "tsc -p tsconfig.serve.json",
     "electron:serve": "wait-on tcp:4200 && npm run electron:serve-tsc && npx electron . --serve",
     "electron:local": "npm run build:prod && npx electron .",
-    "electron:build": "npm run build:prod && electron-builder build --publish=never",
+    "electron:build": "npm run build:prod && electron-builder build",
     "test": "ng test --watch=false",
     "test:watch": "ng test",
     "e2e": "npm run build:prod && cross-env TS_NODE_PROJECT='e2e/tsconfig.e2e.json' mocha --timeout 300000 --require ts-node/register e2e/**/*.e2e.ts",
     "version": "conventional-changelog -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md",
-    "lint": "ng lint"
+    "lint": "ng lint",
+    "package-win": "electron-packager . Whatsapp(electron) --overwrite --asar --platform=win32 --arch=x64 --prune=true --out=release-builds"
   },
   "dependencies": {
     "bootstrap": "4.5.3",
     "jquery": "3.5.1",
     "popper.js": "1.14.3",
     "puppeteer": "7.1.0",
+    "puppeteer-core": "7.1.0",
     "puppeteer-electron": "0.0.10",
     "sweetalert2": "10.15.5",
     "ws": "7.4.3",

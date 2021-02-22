@@ -1,4 +1,52 @@
-<div class="container">
-  <h3>whatsapp</h3>
-  <button class="btn btn-outline-primary" (click)="iniciar()">Start</button>
+<div class="d-flex justify-content-center mt-5">
+  <h3>Envío de mensajes masivos(whatsapp)</h3>
+</div>
+<div class="d-flex justify-content-center mt-4">
+  <div class="card shadow p-3 mb-5 bg-white rounded" style="width: 40rem;">
+    <form class="m-3" (ngSubmit)="iniciar()">
+      <div class="form-group">
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="option1" [checked]="statusMensaje"  disabled>
+          <label class="form-check-label" for="inlineCheckbox1">Mensaje</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="checkbox" id="inlineCheckbox2" value="option2" (change)="changeStatusImagen(statusImagen)" [checked]="statusImagen">
+          <label class="form-check-label" for="inlineCheckbox2">Imágen</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="checkbox" id="inlineCheckbox3" value="option3" (change)="changeStatusVideo(statusVideo)" [checked]="statusVideo">
+          <label class="form-check-label" for="inlineCheckbox3">Video</label>
+        </div>
+      </div>
+  
+      <div class="form-group col-md-12">
+        <hr>
+      </div>
+      
+      <div class="form-group">
+        <label for="mensaje">Mensaje a enviar:</label>
+        <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" [(ngModel)]="mensaje" name="mensaje" id="mensaje"></textarea>
+      </div>
+
+      <div class="form-group" *ngIf="statusImagen" >
+        <label for="inputCity">Seleccione Imágen</label>
+        <div class="custom-file">
+          <input type="file" class="custom-file-input" id="customFileLang" lang="es" accept="image/*" (change)="uploadImage($event)">
+          <label class="custom-file-label" for="customFileLang">Seleccionar Archivo</label>
+        </div>
+      </div>
+
+      <div class="form-group" *ngIf="statusVideo">
+        <label for="video">Seleccione Video</label>
+        <div class="custom-file">
+          <input type="file" class="custom-file-input" id="video" lang="es" accept="video/mp4,video/x-m4v,video/*" (change)="uploadVideo($event)">
+          <label class="custom-file-label" for="video">Seleccionar Archivo</label>
+        </div>
+      </div>
+
+      <div class="text-center mt-4">
+        <button type="submit" class="btn btn-primary btn-lg btn-block">Enviar</button>
+      </div>
+    </form>
+  </div>
 </div>

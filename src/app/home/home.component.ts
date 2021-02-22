@@ -3,7 +3,7 @@ import { Router } from "@angular/router";
 import Swal from "sweetalert2";
 import { ElectronService } from "../core/services";
 
-const puppeteer = require('puppeteer-core')
+const puppeteer = require("puppeteer-core");
 const fs = require("fs");
 const XLSX = require("xlsx");
 const xpath_send_button =
@@ -16,6 +16,14 @@ const xpath_text_box = '//*[@id="main"]/footer/div[1]/div[2]/div/div[2]';
   styleUrls: ["./home.component.scss"],
 })
 export class HomeComponent implements OnInit {
+  mensaje: any;
+  imagen: any;
+  video: any;
+
+  statusMensaje = true;
+  statusImagen = false;
+  statusVideo = false;
+
   constructor(
     private router: Router,
     private electronService: ElectronService
@@ -52,9 +60,11 @@ export class HomeComponent implements OnInit {
     }
 
     const browser = await puppeteer.launch({
-       executablePath: "./node_modules/puppeteer/.local-chromium/win64-848005/chrome-win/chrome.exe",
-       headless: false,
-      });
+      executablePath:
+        "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
+      headless: false,
+      userDataDir: "data/user_data",
+    });
     const [page] = await browser.pages();
     await page.goto("http://web.whatsapp.com");
     await page.waitForSelector("._1awRl", { timeout: 60000 });
@@ -62,7 +72,7 @@ export class HomeComponent implements OnInit {
     console.log("logged in");
 
     for (const contact of contactos) {
-      const mensaje = "Mensaje de texto";
+      const mensaje = this.mensaje;
       let content = encodeURI(mensaje);
       await page.goto(
         "https://web.whatsapp.com/send?phone=" + contact + "&text=" + content
@@ -81,29 +91,117 @@ export class HomeComponent implements OnInit {
       await send_button.click();
       await page.waitFor(500);
 
-      const xpath_attach_box =
-        '//*[@id="main"]/footer/div[1]/div[1]/div[2]/div/div/span';
-      const [span_button] = await page.$x(xpath_attach_box);
-      await span_button.click();
+      if (this.statusImagen) {
+        const xpath_attach_box =
+          '//*[@id="main"]/footer/div[1]/div[1]/div[2]/div/div/span';
+        const [span_button] = await page.$x(xpath_attach_box);
+        await span_button.click();
 
-      const elementHandle = await page.$("input[type='file']");
-      await elementHandle.uploadFile("D:/imagen.jpg");
-      await elementHandle.press("Enter");
+        const elementHandle = await page.$("input[type='file']");
+        await elementHandle.uploadFile(this.imagen);
+        await elementHandle.press("Enter");
 
-      await page.waitFor(3000);
-      const xpath_enviar = '//*[@id="app"]/div/div/div[2]/div[2]/span/div/span/div/div/div[2]/span/div/div/span';
-      const [enviar_button] = await page.$x(xpath_enviar);
-      await enviar_button.click();
+        await page.waitFor(3000);
+        const xpath_enviar =
+          '//*[@id="app"]/div/div/div[2]/div[2]/span/div/span/div/div/div[2]/span/div/div/span';
+        const [enviar_button] = await page.$x(xpath_enviar);
+        await enviar_button.click(); 
+      }
+      if (this.statusVideo) {
+        await page.waitFor(5000);
+        const xpath_attach_box2 =
+          '//*[@id="main"]/footer/div[1]/div[1]/div[2]/div/div/span';
+        const [span_button2] = await page.$x(xpath_attach_box2);
+        await span_button2.click();
+
+        const elementHandle2 = await page.$("input[type='file']");
+        await elementHandle2.uploadFile(this.video);
+        await elementHandle2.press("Enter");
+
+        await page.waitFor(3000);
+        const xpath_enviar2 =
+          '//*[@id="app"]/div/div/div[2]/div[2]/span/div/span/div/div/div[2]/span/div/div/span';
+        const [enviar_button2] = await page.$x(xpath_enviar2);
+        await enviar_button2.click();
+        await page.waitFor(14000);     
+      }
       await page.waitFor(7000);
       console.log("success send message to " + contact);
     }
 
     console.log("done");
     await page.waitFor(1000);
-    browser.close();
+    browser.close()
+    this.limpiar();
   };
 
   iniciar(): any {
-    this.start();
+    if(!this.mensaje){
+      Swal.fire({
+        icon: "info",
+        title: "Oops...",
+        text: `Ingrese mensaje a enviar`,
+      });
+      return;
+    }
+    if (this.statusImagen) {
+      if(!this.imagen){
+        Swal.fire({
+          icon: "info",
+          title: "Oops...",
+          text: `Seleccione imágen`,
+        });
+        return;
+      }
+    }
+    if (this.statusVideo) {
+      if(!this.video){
+        Swal.fire({
+          icon: "info",
+          title: "Oops...",
+          text: `Seleccione video`,
+        });
+        return;
+      }
+    }
+    this.start().then(() =>{
+      this.limpiar();
+    }).catch(err => {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: `${err}`,
+      });
+    });
+  }
+
+  changeStatusImagen(estado) {
+    this.imagen = null;
+    this.statusImagen = !estado;
+  }
+
+  changeStatusVideo(estado) {
+    this.video = null;
+    this.statusVideo = !estado;
+  }
+
+  uploadImage(e) {
+    const file = e.target.files[0];
+    const myVal = file.path.replace(/\\/g, "/");
+    this.imagen = myVal;
+  }
+
+  uploadVideo(e) {
+    const file = e.target.files[0];
+    const myVal = file.path.replace(/\\/g, "/");
+    this.video = myVal;
+  }
+
+  limpiar(){
+    this.statusImagen = false;
+    this.statusVideo = false;
+    this.mensaje = null;
+    this.imagen = null;
+    this.video = null;
   }
 }
