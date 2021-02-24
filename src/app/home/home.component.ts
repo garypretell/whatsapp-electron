@@ -16,6 +16,7 @@ const xpath_text_box = '//*[@id="main"]/footer/div[1]/div[2]/div/div[2]';
   styleUrls: ["./home.component.scss"],
 })
 export class HomeComponent implements OnInit {
+  browser: any;
   mensaje: any;
   imagen: any;
   video: any;
@@ -59,13 +60,35 @@ export class HomeComponent implements OnInit {
       }
     }
 
-    const browser = await puppeteer.launch({
-      executablePath:
-        "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-      headless: false,
-      userDataDir: "data/user_data",
-    });
-    const [page] = await browser.pages();
+    if (!this.electronService.fs.existsSync("C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe")) {
+      this.browser = await puppeteer.launch({
+        executablePath:
+          "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
+        headless: false,
+        userDataDir: "data/user_data",
+      });
+    }else{
+      if (!this.electronService.fs.existsSync("C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe")) {
+        this.browser = await puppeteer.launch({
+          executablePath:
+            "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+          headless: false,
+          userDataDir: "data/user_data",
+        });
+      }else{
+        if(!this.video){
+          Swal.fire({
+            icon: "info",
+            title: "Oops...",
+            text: `Google Chrome no está instalado`,
+          });
+          this.limpiar();
+          return;
+        }
+      }
+    }
+    
+    const [page] = await this.browser.pages();
     await page.goto("http://web.whatsapp.com");
     await page.waitForSelector("._1awRl", { timeout: 60000 });
 
@@ -131,7 +154,7 @@ export class HomeComponent implements OnInit {
 
     console.log("done");
     await page.waitFor(1000);
-    browser.close()
+    this.browser.close()
     this.limpiar();
   };
 
@@ -203,5 +226,9 @@ export class HomeComponent implements OnInit {
     this.mensaje = null;
     this.imagen = null;
     this.video = null;
+  }
+
+  configuracion(): any {
+    this.router.navigate(['detail']);
   }
 }
