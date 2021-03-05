@@ -16,7 +16,6 @@ const xpath_text_box = '//*[@id="main"]/footer/div[1]/div[2]/div/div[2]';
   styleUrls: ["./home.component.scss"],
 })
 export class HomeComponent implements OnInit {
-  browser: any;
   mensaje: any;
   imagen: any;
   video: any;
@@ -60,18 +59,20 @@ export class HomeComponent implements OnInit {
       }
     }
 
-    if (!this.electronService.fs.existsSync("C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe")) {
-      this.browser = await puppeteer.launch({
+    let browser;
+
+      if (this.electronService.fs.existsSync("C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe")) {
+      browser = await puppeteer.launch({
         executablePath:
-          "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
+          "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
         headless: false,
         userDataDir: "data/user_data",
       });
     }else{
-      if (!this.electronService.fs.existsSync("C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe")) {
-        this.browser = await puppeteer.launch({
+      if (this.electronService.fs.existsSync("C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe")) {
+        browser = await puppeteer.launch({
           executablePath:
-            "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+            "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
           headless: false,
           userDataDir: "data/user_data",
         });
@@ -87,8 +88,8 @@ export class HomeComponent implements OnInit {
         }
       }
     }
-    
-    const [page] = await this.browser.pages();
+
+    const [page] = await browser.pages();
     await page.goto("http://web.whatsapp.com");
     await page.waitForSelector("._1awRl", { timeout: 60000 });
 
@@ -128,7 +129,7 @@ export class HomeComponent implements OnInit {
         const xpath_enviar =
           '//*[@id="app"]/div/div/div[2]/div[2]/span/div/span/div/div/div[2]/span/div/div/span';
         const [enviar_button] = await page.$x(xpath_enviar);
-        await enviar_button.click(); 
+        await enviar_button.click();
       }
       if (this.statusVideo) {
         await page.waitFor(5000);
@@ -146,7 +147,7 @@ export class HomeComponent implements OnInit {
           '//*[@id="app"]/div/div/div[2]/div[2]/span/div/span/div/div/div[2]/span/div/div/span';
         const [enviar_button2] = await page.$x(xpath_enviar2);
         await enviar_button2.click();
-        await page.waitFor(14000);     
+        await page.waitFor(14000);
       }
       await page.waitFor(7000);
       console.log("success send message to " + contact);
@@ -154,12 +155,12 @@ export class HomeComponent implements OnInit {
 
     console.log("done");
     await page.waitFor(1000);
-    this.browser.close()
+    browser.close();
     this.limpiar();
   };
 
   iniciar(): any {
-    if(!this.mensaje){
+    if (!this.mensaje) {
       Swal.fire({
         icon: "info",
         title: "Oops...",
@@ -168,7 +169,7 @@ export class HomeComponent implements OnInit {
       return;
     }
     if (this.statusImagen) {
-      if(!this.imagen){
+      if (!this.imagen) {
         Swal.fire({
           icon: "info",
           title: "Oops...",
@@ -178,7 +179,7 @@ export class HomeComponent implements OnInit {
       }
     }
     if (this.statusVideo) {
-      if(!this.video){
+      if (!this.video) {
         Swal.fire({
           icon: "info",
           title: "Oops...",
@@ -187,15 +188,17 @@ export class HomeComponent implements OnInit {
         return;
       }
     }
-    this.start().then(() =>{
-      this.limpiar();
-    }).catch(err => {
-      Swal.fire({
-        icon: "error",
-        title: "Oops...",
-        text: `${err}`,
+    this.start()
+      .then(() => {
+        this.limpiar();
+      })
+      .catch((err) => {
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: `${err}`,
+        });
       });
-    });
   }
 
   changeStatusImagen(estado) {
@@ -220,7 +223,7 @@ export class HomeComponent implements OnInit {
     this.video = myVal;
   }
 
-  limpiar(){
+  limpiar() {
     this.statusImagen = false;
     this.statusVideo = false;
     this.mensaje = null;
@@ -229,6 +232,6 @@ export class HomeComponent implements OnInit {
   }
 
   configuracion(): any {
-    this.router.navigate(['detail']);
+    this.router.navigate(["detail"]);
   }
 }
